@@ -234,10 +234,17 @@
     const cards = {};
 
     function createCard(data) {
-        // If card already exists (e.g. repeated request log), don't create new
-        if (document.getElementById(`card-${data.id}`)) return;
+        let card = document.getElementById(`card-${data.id}`);
+        
+        // ถ้ามี Card อยู่แล้ว ให้ส่งไปอัปเดตแทนการสร้างใหม่
+        if (card) {
+            if (data.type === 'response' || data.type === 'error' || data.response) {
+                updateCard(data);
+            }
+            return;
+        }
 
-        const card = document.createElement('div');
+        card = document.createElement('div');
         card.className = 'transaction-card' + (data.source === 'flutter' ? ' card-flutter' : '');
         card.id = `card-${data.id}`;
         
@@ -245,6 +252,15 @@
         const method = data.method || 'GET';
         const url = data.url || '/unknown';
         
+        // ตรวจสอบว่ามี response มาพร้อมกับ log นี้เลยหรือไม่
+        const hasResponse = data.type === 'response' || data.response || data.statusCode;
+        const responseContent = hasResponse 
+            ? JSON.stringify(data.response || { message: data.message }, null, 2)
+            : 'Waiting...';
+        const statusBadge = hasResponse
+            ? `<span class="status-badge ${data.statusCode >= 400 ? 'status-error' : 'status-200'}">${data.statusCode || 'DONE'}</span>`
+            : `<span class="status-badge status-processing">Processing...</span>`;
+
         card.innerHTML = `
             <div class="card-header">
                 <div>
@@ -260,8 +276,8 @@
                     <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
                 </div>
                 <div class="log-section" id="res-section-${data.id}">
-                    <div class="section-title title-res">📥 Response <span class="status-badge status-processing">Processing...</span></div>
-                    <pre>Waiting...</pre>
+                    <div class="section-title title-res">📥 Response ${statusBadge}</div>
+                    <pre>${responseContent}</pre>
                 </div>
             </div>
         `;
