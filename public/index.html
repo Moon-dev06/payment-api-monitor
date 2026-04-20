@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,10 @@
             --card-bg: #1e293b;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            --accent-get: #4ade80; /* สีเขียวสำหรับ GET */
-            --accent-post: #f59e0b; /* สีเหลืองสำหรับ POST */
+            --accent-get: #4ade80;
+            /* สีเขียวสำหรับ GET */
+            --accent-post: #f59e0b;
+            /* สีเหลืองสำหรับ POST */
             --accent-res: #4ade80;
             --accent-error: #f43f5e;
             --border: #334155;
@@ -37,7 +40,11 @@
             z-index: 100;
         }
 
-        h1 { margin: 0; font-size: 1.5rem; color: #38bdf8; }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #38bdf8;
+        }
 
         .status-dot {
             height: 10px;
@@ -47,7 +54,10 @@
             display: inline-block;
             margin-right: 5px;
         }
-        .status-dot.offline { background-color: #f43f5e; }
+
+        .status-dot.offline {
+            background-color: #f43f5e;
+        }
 
         #logs-container {
             padding: 1.5rem;
@@ -62,17 +72,25 @@
             border: 1px solid var(--border);
             overflow: hidden;
             animation: slideIn 0.3s ease-out;
-            border-left: 4px solid #f59e0b; /* Default border color */
+            border-left: 4px solid #f59e0b;
+            /* Default border color */
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card-header {
             padding: 0.75rem 1.25rem;
-            background-color: rgba(0,0,0,0.2);
+            background-color: rgba(0, 0, 0, 0.2);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
@@ -88,12 +106,19 @@
             text-transform: uppercase;
             color: #000;
         }
-        .method-get { background-color: var(--accent-get); }
-        .method-post { background-color: var(--accent-post); }
-        
+
+        .method-get {
+            background-color: var(--accent-get);
+        }
+
+        .method-post {
+            background-color: var(--accent-post);
+        }
+
         .source-badge {
             font-size: 0.7rem;
-            background: #38bdf8; /* สีฟ้าสำหรับระบุชื่อเส้นทาง */
+            background: #38bdf8;
+            /* สีฟ้าสำหรับระบุชื่อเส้นทาง */
             color: #000;
             padding: 2px 6px;
             border-radius: 4px;
@@ -101,8 +126,20 @@
             font-weight: bold;
         }
 
-        .url-text { font-family: monospace; font-size: 0.95rem; color: var(--text-primary); margin-left: 5px; word-break: break-all; }
-        .time-text { font-size: 0.8rem; color: var(--text-secondary); min-width: 80px; text-align: right; }
+        .url-text {
+            font-family: monospace;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-left: 5px;
+            word-break: break-all;
+        }
+
+        .time-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+            text-align: right;
+        }
 
         .card-body {
             display: grid;
@@ -126,37 +163,35 @@
             gap: 6px;
         }
 
-        .title-req { color: #38bdf8; }
-        .title-res { color: var(--accent-res); }
+        .title-req {
+            color: #38bdf8;
+        }
 
-        /* pre {
-            background-color: rgba(0,0,0,0.3);
+        .title-res {
+            color: var(--accent-res);
+        }
+
+        pre {
+            background-color: rgba(0, 0, 0, 0.3);
             padding: 0.75rem;
             border-radius: 8px;
             font-size: 0.85rem;
+
+            /* เพิ่ม 3 บรรทัดนี้ครับ */
+            max-width: 100%;
+            /* ไม่ให้กว้างเกินตัว container ของมัน */
+            white-space: pre-wrap;
+            /* ให้ตัดบรรทัดใหม่เมื่อข้อความยาวเกิน */
+            word-break: break-all;
+            /* สั่งให้ตัดคำ (โดยเฉพาะพวก Token ยาวๆ) */
+
             overflow-x: auto;
             margin: 0;
             color: #e2e8f0;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             max-height: 400px;
-        } */
-        pre {
-        background-color: rgba(0,0,0,0.3);
-        padding: 0.75rem;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        
-        /* เพิ่ม 3 บรรทัดนี้ครับ */
-        max-width: 100%;           /* ไม่ให้กว้างเกินตัว container ของมัน */
-        white-space: pre-wrap;     /* ให้ตัดบรรทัดใหม่เมื่อข้อความยาวเกิน */
-        word-break: break-all;     /* สั่งให้ตัดคำ (โดยเฉพาะพวก Token ยาวๆ) */
-        
-        overflow-x: auto;
-        margin: 0;
-        color: #e2e8f0;
-        border: 1px solid rgba(255,255,255,0.05);
-        max-height: 400px; /* หรือปรับตามความเหมาะสม */
-    }
+            /* หรือปรับตามความเหมาะสม */
+        }
 
         .status-badge {
             font-size: 0.75rem;
@@ -165,9 +200,20 @@
             font-weight: bold;
         }
 
-        .status-200 { background-color: rgba(74, 222, 128, 0.2); color: #4ade80; }
-        .status-error { background-color: rgba(244, 63, 94, 0.2); color: #f43f5e; }
-        .status-processing { background-color: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+        .status-200 {
+            background-color: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-error {
+            background-color: rgba(244, 63, 94, 0.2);
+            color: #f43f5e;
+        }
+
+        .status-processing {
+            background-color: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
 
         .btn-clear {
             background: transparent;
@@ -179,80 +225,88 @@
         }
 
         @media (max-width: 768px) {
-            .card-body { grid-template-columns: 1fr; }
+            .card-body {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<header>
-    <div>
-        <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
-    </div>
-    <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
-</header>
+    <header>
+        <div>
+            <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
+        </div>
+        <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+    </header>
 
-<div id="logs-container"></div>
+    <div id="logs-container"></div>
 
-<script>
-    const container = document.getElementById('logs-container');
-    const statusDot = document.getElementById('conn-status');
-    const cards = {};
+    <script>
+        const container = document.getElementById('logs-container');
+        const statusDot = document.getElementById('conn-status');
+        const cards = {};
 
-    // ฟังก์ชันช่วยแปลง URL เป็นชื่อ Friendly Name
-    function getFriendlyName(url) {
-        if (!url) return 'API';
-        if (url.includes('/gettoken')) return 'GET-token';
-        if (url.includes('/inquiryqrpayment')) return 'Inquiry';
-        if (url.includes('/checkpaymenttransaction')) return 'Check-payment';
-        if (url.includes('/payment')) return 'Payment';
-        return 'Unknown';
-    }
-
-    async function fetchLogs() {
-        try {
-            const response = await fetch('/logs');
-            if (!response.ok) throw new Error('Network error');
-            const logs = await response.json();
-            statusDot.classList.remove('offline');
-            
-            logs.forEach(log => {
-                if (log.type === 'request') {
-                    createCard(log);
-                } else {
-                    updateCard(log);
-                }
-            });
-        } catch (error) {
-            statusDot.classList.add('offline');
+        // ฟังก์ชันช่วยแปลง URL เป็นชื่อ Friendly Name
+        function getFriendlyName(url) {
+            if (!url) return 'API';
+            if (url.includes('/gettoken')) return 'GET-token';
+            if (url.includes('/inquiryqrpayment')) return 'Inquiry';
+            if (url.includes('/checkpaymenttransaction')) return 'Check-payment';
+            if (url.includes('/payment')) return 'Payment';
+            return 'Unknown';
         }
-    }
 
-    setInterval(fetchLogs, 2000);
-    
-    function createCard(data) {
-        if (document.getElementById(`card-${data.id}`)) return;
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/logs');
+                if (!response.ok) throw new Error('Network error');
+                const logs = await response.json();
+                statusDot.classList.remove('offline');
 
-        const card = document.createElement('div');
-        card.className = 'transaction-card';
-        card.id = `card-${data.id}`;
-        
-        const timeStr = data.time ? new Date(data.time).toLocaleTimeString() : new Date().toLocaleTimeString();
-        const method = (data.method || 'GET').toUpperCase();
-        const methodClass = method === 'POST' ? 'method-post' : 'method-get';
-        const friendlyName = getFriendlyName(data.url);
-        
-        // กำหนดเนื้อหาฝั่ง Response
-        const hasResponse = data.response || data.statusCode;
-        const responseContent = hasResponse 
-            ? JSON.stringify(data.response, null, 2)
-            : 'Waiting for response...';
-        
-        const statusBadge = hasResponse
-            ? `<span class="status-badge ${data.statusCode >= 400 ? 'status-error' : 'status-200'}">${data.statusCode}</span>`
-            : `<span class="status-badge status-processing">Processing...</span>`;
+                logs.forEach(log => {
+                    if (log.type === 'request') {
+                        createCard(log);
+                    } else {
+                        updateCard(log);
+                    }
+                });
+            } catch (error) {
+                statusDot.classList.add('offline');
+            }
+        }
 
-        card.innerHTML = `
+        setInterval(fetchLogs, 2000);
+
+        // และในฟังก์ชัน createCard(data) ให้เพิ่มบรรทัดนี้ไว้บนสุด
+        function createCard(data) {
+            const noLogsMsg = document.getElementById('no-logs-msg');
+            if (noLogsMsg) noLogsMsg.remove(); // ถ้ามีข้อความว่างเปล่า ให้ลบทิ้งก่อนแสดง Card
+
+            function createCard(data) {
+                if (document.getElementById(`card-${data.id}`)) return;
+
+                const card = document.createElement('div');
+                card.className = 'transaction-card';
+                card.id = `card-${data.id}`;
+
+                const timeStr = data.time ? new Date(data.time).toLocaleTimeString() : new Date().toLocaleTimeString();
+                const method = (data.method || 'GET').toUpperCase();
+                const methodClass = method === 'POST' ? 'method-post' : 'method-get';
+                const friendlyName = getFriendlyName(data.url);
+
+                // กำหนดเนื้อหาฝั่ง Response
+                const hasResponse = data.response || data.statusCode;
+                const responseContent = hasResponse
+                    ? JSON.stringify(data.response, null, 2)
+                    : 'Waiting for response...';
+
+                const statusBadge = hasResponse
+                    ? `<span class="status-badge ${data.statusCode >= 400 ? 'status-error' : 'status-200'}">${data.statusCode}</span>`
+                    : `<span class="status-badge status-processing">Processing...</span>`;
+
+                card.innerHTML = `
             <div class="card-header">
                 <div>
                     <span class="source-badge">${friendlyName}</span>
@@ -272,26 +326,27 @@
                 </div>
             </div>
         `;
-        
-        container.prepend(card);
-        cards[data.id] = card;
-    }
 
-    function updateCard(data) {
-        // ถ้าการ์ดยังไม่มี ให้สร้างขึ้นมาก่อน
-        if (!document.getElementById(`card-${data.id}`)) {
-            createCard(data);
+                container.prepend(card);
+                cards[data.id] = card;
+            }
         }
 
-        const resSection = document.getElementById(`res-section-${data.id}`);
-        if (!resSection) return;
+        function updateCard(data) {
+            // ถ้าการ์ดยังไม่มี ให้สร้างขึ้นมาก่อน
+            if (!document.getElementById(`card-${data.id}`)) {
+                createCard(data);
+            }
 
-        const statusCode = data.statusCode || '200';
-        const isError = data.type === 'error' || statusCode >= 400;
-        const statusClass = isError ? 'status-error' : 'status-200';
-        const duration = data.duration ? `⏱ ${data.duration}ms` : '';
+            const resSection = document.getElementById(`res-section-${data.id}`);
+            if (!resSection) return;
 
-        resSection.innerHTML = `
+            const statusCode = data.statusCode || '200';
+            const isError = data.type === 'error' || statusCode >= 400;
+            const statusClass = isError ? 'status-error' : 'status-200';
+            const duration = data.duration ? `⏱ ${data.duration}ms` : '';
+
+            resSection.innerHTML = `
             <div class="section-title title-res">
                 📥 Response 
                 <span class="status-badge ${statusClass}">${statusCode}</span>
@@ -299,12 +354,19 @@
             </div>
             <pre>${JSON.stringify(data.response || { message: data.message }, null, 2)}</pre>
         `;
-    }
+        }
 
-    function clearLogs() {
-        container.innerHTML = '';
-    }
-</script>
+        function clearLogs() {
+            container.innerHTML = `
+            <div id="no-logs-msg" style="text-align: center; padding: 3rem; color: var(--text-secondary); opacity: 0.5;">
+                <p>--- No logs to display ---</p>
+            </div>
+        `;
 
+            for (const key in cards) {
+                delete cards[key];
+            }
+        }
+    </script>
 </body>
 </html>
