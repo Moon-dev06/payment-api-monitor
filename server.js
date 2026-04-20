@@ -133,15 +133,6 @@ const handleProxyError = (err, res, logId, url) => {
     res.status(statusCode).json(errorData);
 };
 
-// สมมติว่าเก็บ log ไว้ในตัวแปร array ชื่อ allLogs
-let allLogs = []; 
-
-app.delete('/logs/delete', (req, res) => {
-    allLogs = []; // ล้างข้อมูลในตัวแปร
-    // หรือถ้าเก็บเป็นไฟล์: fs.writeFileSync('logs.json', JSON.stringify([]));
-    res.status(200).send({ message: "All logs deleted successfully" });
-});
-
 // 🔐 [PROXY] GET TOKEN
 app.get('/v2/payment/gettoken', async (req, res) => {
     const logId = res.locals.logId; // ดึง ID จาก middleware
@@ -303,6 +294,15 @@ app.use((err, req, res, next) => {
         },
         id: req.body?.id || 0
     });
+});
+
+// สมมติว่าเก็บ log ไว้ในตัวแปร array ชื่อ allLogs
+let allLogs = []; 
+
+app.delete('/logs/delete', (req, res) => {
+    allLogs = []; // ล้างข้อมูลในตัวแปร
+    // หรือถ้าเก็บเป็นไฟล์: fs.writeFileSync('logs.json', JSON.stringify([]));
+    res.status(200).send({ message: "All logs deleted successfully" });
 });
 
 // 🛑 Global Node.js Error Handlers (กัน App ตายจาก Error นอก Express)

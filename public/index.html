@@ -281,21 +281,20 @@
                 </small>
             </div>
 
-            <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()"
-                style="background: #1e293b; color: var(--text-secondary);">
-                <option value="0">All Time</option>
-                <option value="1">Last 1 Minute</option>
-                <option value="5">Last 5 Minutes</option>
-                <option value="10">Last 10 Minutes</option>
-                <option value="30">Last 30 Minutes</option>
-            </select>
-
-            <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
-
             <div style="display: flex; gap: 10px; align-items: flex-start;">
                 <div style="display: flex; flex-direction: column; gap: 5px;">
                     <div style="display: flex; gap: 5px;">
-                        <button class="btn-clear" onclick="clearLogs()">Clear UI</button>
+
+                        <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()"
+                            style="background: #1e293b; color: var(--text-secondary);">
+                            <option value="0">All Time</option>
+                            <option value="1">Last 1 Minute</option>
+                            <option value="5">Last 5 Minutes</option>
+                            <option value="10">Last 10 Minutes</option>
+                            <option value="30">Last 30 Minutes</option>
+                        </select>
+
+                        <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
                         <button class="btn-clear" onclick="deleteServerLogs()"
                             style="border-color: var(--accent-error); color: var(--accent-error);">
                             Delete All (Server)
