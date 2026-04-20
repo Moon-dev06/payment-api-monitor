@@ -110,171 +110,93 @@ app.use((req, res, next) => {
 });
 
 
-// 🔐 GET TOKEN
-app.get('/v2/payment/gettoken', (req, res) => {
-    const apiKey = req.headers['x-api-key'];
-    const channel = req.headers['channel'];
+const axios = require('axios');
 
-    if (apiKey !== process.env.X_API_KEY || channel !== process.env.CHANNEL) {
-        return res.status(401).json({
-            jsonrpc: "2.0",
-            result: {
-                apiresult: {
-                    issuccess: false,
-                    returncode: "401",
-                    message: "Invalid key or channel"
-                }
-            },
-            id: 0
-        });
-    }
+// ตั้งค่า CPALL API Base URL (ควรใส่ไว้ใน .env)
+const CPALL_URL = process.env.CPALL_API_URL || 'https://api-sandbox.cpall.co.th'; // ตัวอย่าง URL
 
-    const token = "mock_token_" + Date.now();
-    global.accessToken = token;
+// Middleware สำหรับจัดการ Error จาก Proxy
+const handleProxyError = (err, res, logId, url) => {
+    const errorData = err.response ? err.response.data : { message: err.message };
+    const statusCode = err.response ? err.response.status : 500;
 
-    res.json({
-        result: {
-            payload: {
-                access_token: token,
-                token_type: "Bearer",
-                expires_in: 3600
-            }
-        }
+    addLog({
+        id: logId,
+        type: 'response',
+        status: 'error',
+        statusCode: statusCode,
+        response: errorData,
+        url: url,
+        source: 'server-proxy'
     });
-});
 
-// 🔍 INQUIRY
-app.post('/payment/inquiryqrpayment', verifyToken, (req, res) => {
+    res.status(statusCode).json(errorData);
+};
+
+// 🔐 [PROXY] GET TOKEN
+app.get('/v2/payment/gettoken', async (req, res) => {
+    const logId = res.locals.logId; // ดึง ID จาก middleware
     try {
-        const payload = req.body?.result?.payload;
-
-        if (!payload || !payload.payments?.length) {
-            return res.status(400).json({
-                jsonrpc: "2.0",
-                result: {
-                    apiresult: {
-                        issuccess: false,
-                        returncode: "400",
-                        message: "Invalid request payload"
-                    }
-                },
-                id: req.body?.id || 0
-            });
-        }
-
-        const amount = payload.payments[0].amount;
-
-        res.json({
-            jsonrpc: "2.0",
-            result: {
-                channelinfo: {
-                    channel: req.headers['channel']
-                },
-                payload: {
-                    store_id: "00120",
-                    payment_type: "promptpaycb",
-                    method: "inquiry",
-                    payments: [
-                        {
-                            tender_type: "promptpaycb",
-                            amount: amount
-                        }
-                    ]
-                }
-            },
-            id: req.body.id
+        const response = await axios.get(`${CPALL_URL}/v2/payment/gettoken`, {
+            headers: {
+                'x-api-key': req.headers['x-api-key'],
+                'channel': req.headers['channel']
+            }
         });
-
+        
+        global.accessToken = response.data.result?.payload?.access_token;
+        res.json(response.data);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
+        handleProxyError(err, res, logId, req.originalUrl);
     }
 });
 
-// 💳 PAYMENT
-app.post('/payment/payment', verifyToken, (req, res) => {
+// 🔍 [PROXY] INQUIRY
+app.post('/payment/inquiryqrpayment', verifyToken, async (req, res) => {
+    const logId = res.locals.logId;
     try {
-        const payload = req.body?.result?.payload;
-
-        if (!payload) {
-            return res.status(400).json({
-                jsonrpc: "2.0",
-                result: {
-                    apiresult: {
-                        issuccess: false,
-                        returncode: "400",
-                        message: "Invalid payload"
-                    }
-                },
-                id: req.body?.id || 0
-            });
-        }
-
-        res.json({
-            jsonrpc: "2.0",
-            result: {
-                apiresult: {
-                    issuccess: true,
-                    returncode: "0",
-                    message: ""
-                },
-                payload: {
-                    receipt_no: "R" + Date.now(),
-                    stamps_earned: payload.issue?.stamp_type === "mstamp" ? 1 : 0
-                }
-            },
-            id: req.body.id
+        const response = await axios.post(`${CPALL_URL}/payment/inquiryqrpayment`, req.body, {
+            headers: { 
+                'Authorization': req.headers['authorization'],
+                'channel': req.headers['channel']
+            }
         });
-
+        res.json(response.data);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
+        handleProxyError(err, res, logId, req.originalUrl);
     }
 });
 
-// 🔎 CHECK PAYMENT
-app.get('/payment/checkpaymenttransaction', verifyToken, (req, res) => {
+// 💳 [PROXY] PAYMENT
+app.post('/payment/payment', verifyToken, async (req, res) => {
+    const logId = res.locals.logId;
     try {
-        const { store_id, trans_id } = req.query;
-
-        if (!trans_id) {
-            return res.status(400).json({
-                jsonrpc: "2.0",
-                result: {
-                    apiresult: {
-                        issuccess: false,
-                        returncode: "400",
-                        message: "Missing trans_id"
-                    }
-                },
-                id: 0
-            });
-        }
-
-        res.json({
-            jsonrpc: "2.0",
-            result: {
-                channelinfo: {
-                    channel: req.headers['channel']
-                },
-                payload: {
-                    store_id: store_id || "00120",
-                    payment_type: "promptpaycb",
-                    method: "inquiry",
-                    payments: [
-                        {
-                            tender_type: "promptpaycb",
-                            amount: 90
-                        }
-                    ]
-                }
-            },
-            id: 0
+        const response = await axios.post(`${CPALL_URL}/payment/payment`, req.body, {
+            headers: { 
+                'Authorization': req.headers['authorization'],
+                'channel': req.headers['channel']
+            }
         });
-
+        res.json(response.data);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
+        handleProxyError(err, res, logId, req.originalUrl);
+    }
+});
+
+// 🔎 [PROXY] CHECK STATUS
+app.get('/payment/checkpaymenttransaction', verifyToken, async (req, res) => {
+    const logId = res.locals.logId;
+    try {
+        const response = await axios.get(`${CPALL_URL}/payment/checkpaymenttransaction`, {
+            params: req.query,
+            headers: { 
+                'Authorization': req.headers['authorization'],
+                'channel': req.headers['channel']
+            }
+        });
+        res.json(response.data);
+    } catch (err) {
+        handleProxyError(err, res, logId, req.originalUrl);
     }
 });
 
