@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Transaction Monitor</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-req: #38bdf8;
+            --accent-res: #4ade80;
+            --accent-error: #f43f5e;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 1rem 2rem;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; color: var(--accent-req); }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 8px #4ade80;
+        }
+        .status-dot.offline {
+            background-color: #f43f5e;
+            box-shadow: 0 0 8px #f43f5e;
+        }
+
+        #logs-container {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .transaction-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        .card-flutter {
+            border-left: 4px solid #f59e0b;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .method-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            background-color: var(--accent-req);
+            color: var(--bg-color);
+        }
+        
+        .source-badge {
+            font-size: 0.7rem;
+            background: #f59e0b;
+            color: #000;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .url-text { font-family: monospace; font-size: 0.95rem; color: var(--text-primary); margin-left: 10px; word-break: break-all; }
+        .time-text { font-size: 0.8rem; color: var(--text-secondary); min-width: 80px; text-align: right; }
+
+        .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background-color: var(--border);
+        }
+
+        .log-section {
+            padding: 1.25rem;
+            background-color: var(--card-bg);
+            min-height: 100px;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .title-req { color: var(--accent-req); }
+        .title-res { color: var(--accent-res); }
+
+        pre {
+            background-color: rgba(0,0,0,0.3);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0;
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-height: 300px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status-200 { background-color: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .status-error { background-color: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+        .status-processing { background-color: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+
+        .duration { font-size: 0.75rem; color: var(--text-secondary); margin-left: 10px; }
+
+        .btn-clear {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-clear:hover { background: var(--border); color: var(--text-primary); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @media (max-width: 768px) {
+            .card-body { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
+    </div>
+    <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+</header>
+
+<div id="logs-container">
+    <!-- Cards will be inserted here -->
+</div>
+
+<script>
+    const container = document.getElementById('logs-container');
+    const statusDot = document.getElementById('conn-status');
+    
+    // Connect to the current host
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}`);
+    
+    // Store for cards by ID
+    const cards = {};
+
+    ws.onopen = () => {
+        console.log('Connected to WebSocket');
+        statusDot.classList.remove('offline');
+    };
+    
+    ws.onclose = () => {
+        console.log('Disconnected from WebSocket');
+        statusDot.classList.add('offline');
+    };
+    
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            console.log("Received data:", data);
+            
+            if (data.type === 'request') {
+                createCard(data);
+            } else if (data.type === 'response' || data.type === 'error') {
+                updateCard(data);
+            }
+        } catch (e) {
+            console.error("Error processing message:", e);
+        }
+    };
+
+    function createCard(data) {
+        // If card already exists (e.g. repeated request log), don't create new
+        if (document.getElementById(`card-${data.id}`)) return;
+
+        const card = document.createElement('div');
+        card.className = 'transaction-card' + (data.source === 'flutter' ? ' card-flutter' : '');
+        card.id = `card-${data.id}`;
+        
+        const timeStr = data.time ? new Date(data.time).toLocaleTimeString() : new Date().toLocaleTimeString();
+        const method = data.method || 'GET';
+        const url = data.url || '/unknown';
+        
+        card.innerHTML = `
+            <div class="card-header">
+                <div>
+                    ${data.source === 'flutter' ? '<span class="source-badge">FLUTTER</span>' : ''}
+                    <span class="method-badge">${method}</span>
+                    <span class="url-text">${url}</span>
+                </div>
+                <div class="time-text">${timeStr}</div>
+            </div>
+            <div class="card-body">
+                <div class="log-section">
+                    <div class="section-title title-req">📦 Request Body / Headers</div>
+                    <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
+                </div>
+                <div class="log-section" id="res-section-${data.id}">
+                    <div class="section-title title-res">📥 Response <span class="status-badge status-processing">Processing...</span></div>
+                    <pre>Waiting...</pre>
+                </div>
+            </div>
+        `;
+        
+        container.prepend(card);
+        cards[data.id] = card;
+    }
+
+    function updateCard(data) {
+        // If request card doesn't exist, create it first (for error/direct response logs)
+        if (!document.getElementById(`card-${data.id}`)) {
+            createCard({
+                id: data.id,
+                type: 'request',
+                url: data.url,
+                method: data.method || 'LOG',
+                source: data.source,
+                time: data.time
+            });
+        }
+
+        const resSection = document.getElementById(`res-section-${data.id}`);
+        if (!resSection) return;
+
+        const statusCode = data.statusCode || (data.type === 'error' ? 'ERROR' : '200');
+        const isError = data.type === 'error' || statusCode >= 400 || statusCode === 'ERROR';
+        const statusClass = isError ? 'status-error' : 'status-200';
+        const duration = data.duration ? `⏱ ${data.duration}ms` : '';
+
+        resSection.innerHTML = `
+            <div class="section-title title-res">
+                📥 ${data.type === 'error' ? 'Error Detail' : 'Response'} 
+                <span class="status-badge ${statusClass}">${statusCode}</span>
+                <span class="duration">${duration}</span>
+            </div>
+            <pre>${data.response || data.message ? JSON.stringify(data.response || { message: data.message }, null, 2) : 'Empty Response'}</pre>
+        `;
+    }
+
+    function clearLogs() {
+        container.innerHTML = '';
+        for (const key in cards) delete cards[key];
+    }
+</script>
+
+</body>
+</html>
