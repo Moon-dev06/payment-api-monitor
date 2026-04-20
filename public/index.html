@@ -16,6 +16,7 @@
             --accent-res: #4ade80;
             --accent-error: #f43f5e;
             --border: #334155;
+            --blue-sky: #38bdf8;
         }
 
         body {
@@ -24,6 +25,34 @@
             color: var(--text-primary);
             margin: 0;
             min-height: 100vh;
+        }
+
+        /* --- [NEW] Loading CSS --- */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            display: none; /* ซ่อนไว้เริ่มต้น */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(56, 189, 248, 0.1);
+            border-left-color: var(--blue-sky);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         header {
@@ -38,24 +67,17 @@
             z-index: 100;
         }
 
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #38bdf8;
-        }
+        h1 { margin: 0; font-size: 1.5rem; color: var(--blue-sky); }
 
         .status-dot {
-            height: 10px;
-            width: 10px;
+            height: 10px; width: 10px;
             background-color: #4ade80;
             border-radius: 50%;
             display: inline-block;
             margin-right: 5px;
         }
 
-        .status-dot.offline {
-            background-color: #f43f5e;
-        }
+        .status-dot.offline { background-color: #f43f5e; }
 
         #logs-container {
             padding: 1.5rem;
@@ -74,15 +96,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card-header {
@@ -103,17 +118,12 @@
             color: #000;
         }
 
-        .method-get {
-            background-color: var(--accent-get);
-        }
-
-        .method-post {
-            background-color: var(--accent-post);
-        }
+        .method-get { background-color: var(--accent-get); }
+        .method-post { background-color: var(--accent-post); }
 
         .source-badge {
             font-size: 0.7rem;
-            background: #38bdf8;
+            background: var(--blue-sky);
             color: #000;
             padding: 2px 6px;
             border-radius: 4px;
@@ -143,10 +153,7 @@
             background-color: var(--border);
         }
 
-        .log-section {
-            padding: 1.25rem;
-            background-color: var(--card-bg);
-        }
+        .log-section { padding: 1.25rem; background-color: var(--card-bg); }
 
         .section-title {
             font-size: 0.75rem;
@@ -158,34 +165,22 @@
             gap: 6px;
         }
 
-        .title-req {
-            color: #38bdf8;
-        }
-
-        .title-res {
-            color: var(--accent-res);
-        }
+        .title-req { color: var(--blue-sky); }
+        .title-res { color: var(--accent-res); }
 
         pre {
             background-color: rgba(0, 0, 0, 0.3);
             padding: 0.75rem;
             border-radius: 8px;
             font-size: 0.85rem;
-
-            /* เพิ่ม 3 บรรทัดนี้ครับ */
             max-width: 100%;
-            /* ไม่ให้กว้างเกินตัว container ของมัน */
             white-space: pre-wrap;
-            /* ให้ตัดบรรทัดใหม่เมื่อข้อความยาวเกิน */
             word-break: break-all;
-            /* สั่งให้ตัดคำ (โดยเฉพาะพวก Token ยาวๆ) */
-
             overflow-x: auto;
             margin: 0;
             color: #e2e8f0;
             border: 1px solid rgba(255, 255, 255, 0.05);
             max-height: 400px;
-            /* หรือปรับตามความเหมาะสม */
         }
 
         .status-badge {
@@ -195,20 +190,9 @@
             font-weight: bold;
         }
 
-        .status-200 {
-            background-color: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-        }
-
-        .status-error {
-            background-color: rgba(244, 63, 94, 0.2);
-            color: #f43f5e;
-        }
-
-        .status-processing {
-            background-color: rgba(56, 189, 248, 0.2);
-            color: #38bdf8;
-        }
+        .status-200 { background-color: rgba(74, 222, 128, 0.2); color: #4ade80; }
+        .status-error { background-color: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+        .status-processing { background-color: rgba(56, 189, 248, 0.2); color: var(--blue-sky); }
 
         .btn-clear {
             background: transparent;
@@ -220,20 +204,20 @@
             transition: 0.2s;
         }
 
-        .btn-clear:hover {
-            background: #334155;
-            color: white;
-        }
+        .btn-clear:hover { background: #334155; color: white; }
 
         @media (max-width: 768px) {
-            .card-body {
-                grid-template-columns: 1fr;
-            }
+            .card-body { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 
 <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div style="font-size: 0.9rem; color: var(--blue-sky);">Filtering Logs...</div>
+    </div>
 
     <header>
         <div>
@@ -256,9 +240,9 @@
     <script>
         const container = document.getElementById('logs-container');
         const statusDot = document.getElementById('conn-status');
+        const loadingOverlay = document.getElementById('loading-overlay');
         const cards = {};
 
-        // --- ส่วนที่แก้ไข: เก็บเวลาที่กด Clear ล่าสุด ---
         let lastClearTime = 0;
 
         function getFriendlyName(url) {
@@ -292,7 +276,6 @@
         setInterval(fetchLogs, 2000);
 
         function createCard(data) {
-            // --- ส่วนที่แก้ไข: เช็คเวลาของ Log กับเวลาที่กด Clear ---
             const logTime = data.time ? new Date(data.time).getTime() : Date.now();
             if (logTime <= lastClearTime) return;
 
@@ -317,32 +300,31 @@
                 : `<span class="status-badge status-processing">Processing...</span>`;
 
             card.innerHTML = `
-            <div class="card-header">
-                <div>
-                    <span class="source-badge">${friendlyName}</span>
-                    <span class="method-badge ${methodClass}">${method}</span>
-                    <span class="url-text">${data.url || ''}</span>
+                <div class="card-header">
+                    <div>
+                        <span class="source-badge">${friendlyName}</span>
+                        <span class="method-badge ${methodClass}">${method}</span>
+                        <span class="url-text">${data.url || ''}</span>
+                    </div>
+                    <div class="time-text">${timeStr}</div>
                 </div>
-                <div class="time-text">${timeStr}</div>
-            </div>
-            <div class="card-body">
-                <div class="log-section">
-                    <div class="section-title title-req">📦 Request Body / Headers</div>
-                    <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
+                <div class="card-body">
+                    <div class="log-section">
+                        <div class="section-title title-req">📦 Request Body / Headers</div>
+                        <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
+                    </div>
+                    <div class="log-section" id="res-section-${data.id}">
+                        <div class="section-title title-res">📥 Response ${statusBadge}</div>
+                        <pre>${responseContent}</pre>
+                    </div>
                 </div>
-                <div class="log-section" id="res-section-${data.id}">
-                    <div class="section-title title-res">📥 Response ${statusBadge}</div>
-                    <pre>${responseContent}</pre>
-                </div>
-            </div>
-        `;
+            `;
 
             container.prepend(card);
             cards[data.id] = card;
         }
 
         function updateCard(data) {
-            // --- ส่วนที่แก้ไข: เช็คเวลาก่อนอัปเดตด้วย ---
             const logTime = data.time ? new Date(data.time).getTime() : Date.now();
             if (logTime <= lastClearTime) return;
 
@@ -360,47 +342,47 @@
             const duration = data.duration ? `⏱ ${data.duration}ms` : '';
 
             resSection.innerHTML = `
-            <div class="section-title title-res">
-                📥 Response 
-                <span class="status-badge ${statusClass}">${statusCode}</span>
-                <span class="duration" style="font-size: 0.75rem; color: #94a3b8; margin-left:10px;">${duration}</span>
-            </div>
-            <pre>${JSON.stringify(data.response || { message: data.message }, null, 2)}</pre>
-        `;
+                <div class="section-title title-res">
+                    📥 Response 
+                    <span class="status-badge ${statusClass}">${statusCode}</span>
+                    <span class="duration" style="font-size: 0.75rem; color: #94a3b8; margin-left:10px;">${duration}</span>
+                </div>
+                <pre>${JSON.stringify(data.response || { message: data.message }, null, 2)}</pre>
+            `;
         }
 
         function clearLogs() {
-            // 1. บันทึกเวลาที่กดลบ (Log ที่เกิดก่อนเวลานี้จะไม่ถูกวาดใหม่)
             lastClearTime = Date.now();
-
-            // 2. ลบ HTML ออกจากหน้าจอ
             container.innerHTML = '';
-
-            // 3. ล้างข้อมูลใน Object cards
             for (const key in cards) {
                 delete cards[key];
             }
-
-            console.log("Logs cleared on UI. Filtering out old logs.");
+            console.log("Logs cleared on UI.");
         }
 
-        // เพิ่มฟังก์ชันนี้ลงใน <script>
+        // --- [MODIFIED] ฟังก์ชันกรองเวลาพร้อม Loading ---
         function applyTimeFilter() {
+            // 1. แสดง Loading
+            loadingOverlay.style.display = 'flex';
+
             const filterMinutes = parseInt(document.getElementById('time-filter').value);
 
-            // ล้างหน้าจอเดิมออกก่อน
+            // 2. ล้างหน้าจอและข้อมูลเก่าทันที
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
 
+            // 3. ตั้งค่าเวลาใหม่
             if (filterMinutes === 0) {
-                // ถ้าเลือก All Time ให้รีเซ็ต lastClearTime เป็น 0
                 lastClearTime = 0;
             } else {
-                // คำนวณเวลาถอยหลังจากปัจจุบัน (นาที * 60 วินาที * 1000 มิลลิวินาที)
                 lastClearTime = Date.now() - (filterMinutes * 60 * 1000);
             }
 
-            console.log(`Filtering logs from the last ${filterMinutes} minutes`);
+            // 4. หน่วงเวลา 500ms เพื่อให้ Loading แสดงผล (และรอรอบ Polling ถัดไปวาดการ์ด)
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                console.log(`Filter applied: last ${filterMinutes} min`);
+            }, 500);
         }
     </script>
 </body>
