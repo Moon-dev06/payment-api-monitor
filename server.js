@@ -38,19 +38,22 @@ app.get('/logs', (req, res) => {
 
 // Logging Middleware
 app.use((req, res, next) => {
-    // ข้าม favicon และไฟล์ static
-    if (req.originalUrl === '/favicon.ico' || req.originalUrl.startsWith('/js/') || req.originalUrl === '/logs') {
+    // ข้าม favicon, ไฟล์ static และทุกอย่างที่เป็นการรับ log เอง
+    if (
+        req.originalUrl === '/favicon.ico' || 
+        req.originalUrl.startsWith('/js/') || 
+        req.originalUrl.startsWith('/logs')
+    ) {
         return next();
     }
 
     const startTime = Date.now();
     const logId = Date.now() + Math.random().toString(36).substr(2, 9);
 
-    // ดักจับ response body
+    // ดักจับ response body ให้แม่นยำขึ้น
     const oldSend = res.send;
-    let responseBody;
     res.send = function (data) {
-        responseBody = data;
+        res.locals.responseBody = data;
         return oldSend.apply(res, arguments);
     };
 
@@ -63,20 +66,29 @@ app.use((req, res, next) => {
         headers: req.headers,
         body: req.body || null,
         type: 'request',
-        status: "processing"
+        status: "processing",
+        source: 'server'
     };
 
     addLog(requestLog);
 
     // ส่งตอนจบ (Response)
     res.on('finish', () => {
-        let parsedResBody = responseBody;
+        let rawBody = res.locals.responseBody;
+        let parsedResBody = rawBody;
+
+        // ถ้าเป็น Buffer ให้แปลงเป็น String ก่อน
+        if (Buffer.isBuffer(rawBody)) {
+            parsedResBody = rawBody.toString('utf8');
+        }
+
+        // พยายาม Parse เป็น JSON ถ้าทำได้
         try {
-            if (typeof responseBody === 'string') {
-                parsedResBody = JSON.parse(responseBody);
+            if (typeof parsedResBody === 'string') {
+                parsedResBody = JSON.parse(parsedResBody);
             }
         } catch (e) {
-            // ไม่ใช่ JSON ให้เก็บไว้ตามเดิม
+            // ไม่ใช่ JSON หรือ Parse ไม่สำเร็จ ให้ใช้ค่าเดิม
         }
 
         const responseLog = {
@@ -86,7 +98,8 @@ app.use((req, res, next) => {
             duration: Date.now() - startTime,
             response: parsedResBody,
             type: 'response',
-            url: req.originalUrl // ใส่ไว้เพื่อให้ debug ง่ายใน console
+            url: req.originalUrl,
+            source: 'server'
         };
 
         addLog(responseLog);
