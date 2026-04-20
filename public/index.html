@@ -30,10 +30,13 @@
         /* --- [NEW] Loading CSS --- */
         #loading-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(15, 23, 42, 0.8);
-            display: none; /* ซ่อนไว้เริ่มต้น */
+            display: none;
+            /* ซ่อนไว้เริ่มต้น */
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -52,7 +55,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         header {
@@ -67,17 +72,24 @@
             z-index: 100;
         }
 
-        h1 { margin: 0; font-size: 1.5rem; color: var(--blue-sky); }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--blue-sky);
+        }
 
         .status-dot {
-            height: 10px; width: 10px;
+            height: 10px;
+            width: 10px;
             background-color: #4ade80;
             border-radius: 50%;
             display: inline-block;
             margin-right: 5px;
         }
 
-        .status-dot.offline { background-color: #f43f5e; }
+        .status-dot.offline {
+            background-color: #f43f5e;
+        }
 
         #logs-container {
             padding: 1.5rem;
@@ -96,8 +108,15 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card-header {
@@ -118,8 +137,13 @@
             color: #000;
         }
 
-        .method-get { background-color: var(--accent-get); }
-        .method-post { background-color: var(--accent-post); }
+        .method-get {
+            background-color: var(--accent-get);
+        }
+
+        .method-post {
+            background-color: var(--accent-post);
+        }
 
         .source-badge {
             font-size: 0.7rem;
@@ -153,7 +177,10 @@
             background-color: var(--border);
         }
 
-        .log-section { padding: 1.25rem; background-color: var(--card-bg); }
+        .log-section {
+            padding: 1.25rem;
+            background-color: var(--card-bg);
+        }
 
         .section-title {
             font-size: 0.75rem;
@@ -165,8 +192,13 @@
             gap: 6px;
         }
 
-        .title-req { color: var(--blue-sky); }
-        .title-res { color: var(--accent-res); }
+        .title-req {
+            color: var(--blue-sky);
+        }
+
+        .title-res {
+            color: var(--accent-res);
+        }
 
         pre {
             background-color: rgba(0, 0, 0, 0.3);
@@ -190,9 +222,20 @@
             font-weight: bold;
         }
 
-        .status-200 { background-color: rgba(74, 222, 128, 0.2); color: #4ade80; }
-        .status-error { background-color: rgba(244, 63, 94, 0.2); color: #f43f5e; }
-        .status-processing { background-color: rgba(56, 189, 248, 0.2); color: var(--blue-sky); }
+        .status-200 {
+            background-color: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-error {
+            background-color: rgba(244, 63, 94, 0.2);
+            color: #f43f5e;
+        }
+
+        .status-processing {
+            background-color: rgba(56, 189, 248, 0.2);
+            color: var(--blue-sky);
+        }
 
         .btn-clear {
             background: transparent;
@@ -204,10 +247,15 @@
             transition: 0.2s;
         }
 
-        .btn-clear:hover { background: #334155; color: white; }
+        .btn-clear:hover {
+            background: #334155;
+            color: white;
+        }
 
         @media (max-width: 768px) {
-            .card-body { grid-template-columns: 1fr; }
+            .card-body {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -224,13 +272,10 @@
             <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
         </div>
         <div style="display: flex; gap: 10px;">
-            <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()">
-                <option value="0">All Time</option>
-                <option value="1">Last 1 Minute</option>
-                <option value="5">Last 5 Minutes</option>
-                <option value="10">Last 10 Minutes</option>
-                <option value="30">Last 30 Minutes</option>
-            </select>
+            <input type="text" id="exact-time-filter" class="btn-clear" placeholder="HH:mm:ss (เช่น 16:14:20)"
+                style="width: 150px;">
+            <button class="btn-clear" onclick="applyExactTimeFilter()"
+                style="background: var(--blue-sky); color: #000;">Apply</button>
             <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
         </div>
     </header>
@@ -360,29 +405,43 @@
             console.log("Logs cleared on UI.");
         }
 
-        // --- [MODIFIED] ฟังก์ชันกรองเวลาพร้อม Loading ---
-        function applyTimeFilter() {
-            // 1. แสดง Loading
+        function applyExactTimeFilter() {
+            const timeInput = document.getElementById('exact-time-filter').value.trim();
+            if (!timeInput) return;
+
+            // แสดง Loading
             loadingOverlay.style.display = 'flex';
 
-            const filterMinutes = parseInt(document.getElementById('time-filter').value);
+            try {
+                const now = new Date();
+                const [hours, minutes, seconds] = timeInput.split(':');
 
-            // 2. ล้างหน้าจอและข้อมูลเก่าทันที
-            container.innerHTML = '';
-            for (const key in cards) delete cards[key];
+                // สร้าง Object วันที่ของวันนี้ แต่ระบุเวลาตามที่พิมพ์มา
+                const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds || 0);
 
-            // 3. ตั้งค่าเวลาใหม่
-            if (filterMinutes === 0) {
-                lastClearTime = 0;
-            } else {
-                lastClearTime = Date.now() - (filterMinutes * 60 * 1000);
-            }
+                // ตรวจสอบว่าเวลาที่พิมพ์ถูกต้องไหม
+                if (isNaN(targetDate.getTime())) {
+                    alert("รูปแบบเวลาไม่ถูกต้อง กรุณาพิมพ์แบบ HH:mm:ss");
+                    loadingOverlay.style.display = 'none';
+                    return;
+                }
 
-            // 4. หน่วงเวลา 500ms เพื่อให้ Loading แสดงผล (และรอรอบ Polling ถัดไปวาดการ์ด)
-            setTimeout(() => {
+                // ล้างหน้าจอและตั้งค่าเวลาเริ่มต้นใหม่
+                container.innerHTML = '';
+                for (const key in cards) delete cards[key];
+
+                // ตั้งค่า lastClearTime เป็นเวลาที่พิมพ์มา
+                lastClearTime = targetDate.getTime();
+
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                    console.log(`Filtering logs from: ${targetDate.toLocaleTimeString()}`);
+                }, 500);
+
+            } catch (e) {
+                alert("เกิดข้อผิดพลาดในการกรองเวลา");
                 loadingOverlay.style.display = 'none';
-                console.log(`Filter applied: last ${filterMinutes} min`);
-            }, 500);
+            }
         }
     </script>
 </body>
