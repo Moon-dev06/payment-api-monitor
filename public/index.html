@@ -267,7 +267,7 @@
             <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
         </div>
         <div style="display: flex; gap: 10px;">
-            
+
             <div style="display: flex; flex-direction: column; gap: 4px;">
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="text" id="exact-time-filter" class="btn-clear" placeholder="ค้นหาที่นี่..."
@@ -291,7 +291,18 @@
             </select>
 
             <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
-        </div>
+
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn-clear" onclick="clearLogs()">Clear UI</button>
+                        <button class="btn-clear" onclick="deleteServerLogs()"
+                            style="border-color: var(--accent-error); color: var(--accent-error);">
+                            Delete All (Server)
+                        </button>
+                    </div>
+                </div>
+            </div>
     </header>
 
     <div id="logs-container"></div>
@@ -519,6 +530,31 @@
             document.getElementById('time-filter').value = "0";
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
+        }
+
+        async function deleteServerLogs() {
+            if (!confirm("คุณต้องการลบ Log ทั้งหมดออกจาก Server ใช่หรือไม่? (ไม่สามารถย้อนคืนได้)")) {
+                return;
+            }
+
+            try {
+                loadingOverlay.style.display = 'flex';
+                // สมมติว่าสร้าง Endpoint ไว้ที่ /logs/delete
+                const response = await fetch('/logs/delete', { method: 'DELETE' });
+
+                if (response.ok) {
+                    // เมื่อลบที่ Server สำเร็จ ก็ล้างหน้าจอ Frontend ด้วย
+                    clearLogs();
+                    alert("ลบข้อมูลสำเร็จ");
+                } else {
+                    alert("เกิดข้อผิดพลาดในการลบข้อมูลที่ Server");
+                }
+            } catch (error) {
+                console.error("Error deleting logs:", error);
+                alert("ไม่สามารถติดต่อ Server ได้");
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
         }
     </script>
 </body>

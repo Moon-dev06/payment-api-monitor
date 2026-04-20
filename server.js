@@ -113,7 +113,7 @@ app.use((req, res, next) => {
 const axios = require('axios');
 
 // ตั้งค่า CPALL API Base URL (ควรใส่ไว้ใน .env)
-const CPALL_URL = process.env.CPALL_API_URL || 'https://api-sandbox.cpall.co.th'; // ตัวอย่าง URL
+const CPALL_URL = process.env.SPAC_BASE_URL; // ตัวอย่าง URL
 
 // Middleware สำหรับจัดการ Error จาก Proxy
 const handleProxyError = (err, res, logId, url) => {
@@ -132,6 +132,15 @@ const handleProxyError = (err, res, logId, url) => {
 
     res.status(statusCode).json(errorData);
 };
+
+// สมมติว่าเก็บ log ไว้ในตัวแปร array ชื่อ allLogs
+let allLogs = []; 
+
+app.delete('/logs/delete', (req, res) => {
+    allLogs = []; // ล้างข้อมูลในตัวแปร
+    // หรือถ้าเก็บเป็นไฟล์: fs.writeFileSync('logs.json', JSON.stringify([]));
+    res.status(200).send({ message: "All logs deleted successfully" });
+});
 
 // 🔐 [PROXY] GET TOKEN
 app.get('/v2/payment/gettoken', async (req, res) => {
