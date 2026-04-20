@@ -267,14 +267,22 @@
             <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
         </div>
         <div style="display: flex; gap: 10px;">
-            <input type="text" id="exact-time-filter" class="btn-clear" placeholder="Keyword หรือ ช่วงเวลา 16:00, 16:00 - 16:15"
-                style="width: 180px;">
+            
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="exact-time-filter" class="btn-clear" placeholder="ค้นหาที่นี่..."
+                        style="width: 250px;">
 
-            <button class="btn-clear" onclick="applyExactTimeFilter()"
-                style="background: var(--blue-sky); color: #000; font-weight: bold;">Apply</button>
+                    <button class="btn-clear" onclick="applyExactTimeFilter()"
+                        style="background: var(--blue-sky); color: #000; font-weight: bold;">Apply</button>
+                </div>
+                <small style="color: var(--text-secondary); font-size: 0.7rem; margin-left: 5px;">
+                    ** Keyword หรือ ช่วงเวลา 16:00 - 16:15 หรือ 16:00 **
+                </small>
+            </div>
 
             <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()"
-                style="background: #1e293b; color: white;">
+                style="background: #1e293b; color: var(--text-secondary);">
                 <option value="0">All Time</option>
                 <option value="1">Last 1 Minute</option>
                 <option value="5">Last 5 Minutes</option>
