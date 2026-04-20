@@ -52,7 +52,11 @@
             margin-bottom: 10px;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         header {
             padding: 1rem 2rem;
@@ -66,16 +70,24 @@
             z-index: 100;
         }
 
-        h1 { margin: 0; font-size: 1.5rem; color: var(--blue-sky); }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--blue-sky);
+        }
 
         .status-dot {
-            height: 10px; width: 10px;
+            height: 10px;
+            width: 10px;
             background-color: #4ade80;
             border-radius: 50%;
             display: inline-block;
             margin-right: 5px;
         }
-        .status-dot.offline { background-color: #f43f5e; }
+
+        .status-dot.offline {
+            background-color: #f43f5e;
+        }
 
         #logs-container {
             padding: 1.5rem;
@@ -94,8 +106,15 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card-header {
@@ -115,8 +134,14 @@
             text-transform: uppercase;
             color: #000;
         }
-        .method-get { background-color: var(--accent-get); }
-        .method-post { background-color: var(--accent-post); }
+
+        .method-get {
+            background-color: var(--accent-get);
+        }
+
+        .method-post {
+            background-color: var(--accent-post);
+        }
 
         .source-badge {
             font-size: 0.7rem;
@@ -128,8 +153,18 @@
             font-weight: bold;
         }
 
-        .url-text { font-family: monospace; font-size: 0.95rem; word-break: break-all; }
-        .time-text { font-size: 0.8rem; color: var(--text-secondary); min-width: 80px; text-align: right; }
+        .url-text {
+            font-family: monospace;
+            font-size: 0.95rem;
+            word-break: break-all;
+        }
+
+        .time-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+            text-align: right;
+        }
 
         .card-body {
             display: grid;
@@ -138,10 +173,28 @@
             background-color: var(--border);
         }
 
-        .log-section { padding: 1.25rem; background-color: var(--card-bg); }
-        .section-title { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px; }
-        .title-req { color: var(--blue-sky); }
-        .title-res { color: var(--accent-res); }
+        .log-section {
+            padding: 1.25rem;
+            background-color: var(--card-bg);
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .title-req {
+            color: var(--blue-sky);
+        }
+
+        .title-res {
+            color: var(--accent-res);
+        }
 
         pre {
             background-color: rgba(0, 0, 0, 0.3);
@@ -157,10 +210,27 @@
             overflow-y: auto;
         }
 
-        .status-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
-        .status-200 { background-color: rgba(74, 222, 128, 0.2); color: #4ade80; }
-        .status-error { background-color: rgba(244, 63, 94, 0.2); color: #f43f5e; }
-        .status-processing { background-color: rgba(56, 189, 248, 0.2); color: var(--blue-sky); }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status-200 {
+            background-color: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-error {
+            background-color: rgba(244, 63, 94, 0.2);
+            color: #f43f5e;
+        }
+
+        .status-processing {
+            background-color: rgba(56, 189, 248, 0.2);
+            color: var(--blue-sky);
+        }
 
         .btn-clear {
             background: transparent;
@@ -171,9 +241,17 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .btn-clear:hover { background: #334155; color: white; }
 
-        @media (max-width: 768px) { .card-body { grid-template-columns: 1fr; } }
+        .btn-clear:hover {
+            background: #334155;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -189,10 +267,21 @@
             <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
         </div>
         <div style="display: flex; gap: 10px;">
-            <input type="text" id="exact-time-filter" class="btn-clear" 
-                   placeholder="Time (16:14) or Keyword (token)" style="width: 200px;">
-            <button class="btn-clear" onclick="applyExactTimeFilter()" 
-                    style="background: var(--blue-sky); color: #000; font-weight: bold;">Apply</button>
+            <input type="text" id="exact-time-filter" class="btn-clear" placeholder="Keyword หรือ ช่วงเวลา 16:00, 16:00 - 16:15"
+                style="width: 180px;">
+
+            <button class="btn-clear" onclick="applyExactTimeFilter()"
+                style="background: var(--blue-sky); color: #000; font-weight: bold;">Apply</button>
+
+            <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()"
+                style="background: #1e293b; color: white;">
+                <option value="0">All Time</option>
+                <option value="1">Last 1 Minute</option>
+                <option value="5">Last 5 Minutes</option>
+                <option value="10">Last 10 Minutes</option>
+                <option value="30">Last 30 Minutes</option>
+            </select>
+
             <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
         </div>
     </header>
@@ -241,15 +330,67 @@
 
         setInterval(fetchLogs, 2000);
 
+        // --- ฟังก์ชันกรองจาก Dropdown ---
+        function applyTimeFilter() {
+            const filterMinutes = parseInt(document.getElementById('time-filter').value);
+            loadingOverlay.style.display = 'flex';
+
+            // ล้างหน้าจอและคำค้นหาเดิม
+            container.innerHTML = '';
+            for (const key in cards) delete cards[key];
+            searchKeyword = "";
+            filterEndTime = Infinity;
+            document.getElementById('exact-time-filter').value = ""; // ล้างช่อง Input
+
+            if (filterMinutes === 0) {
+                lastClearTime = 0;
+            } else {
+                lastClearTime = Date.now() - (filterMinutes * 60 * 1000);
+            }
+
+            setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+            console.log(`Filtering logs from the last ${filterMinutes} minutes`);
+        }
+
         function applyExactTimeFilter() {
             const input = document.getElementById('exact-time-filter').value.trim();
             loadingOverlay.style.display = 'flex';
+
+            document.getElementById('time-filter').value = "0"; // Reset dropdown
 
             if (!input) {
                 searchKeyword = "";
                 lastClearTime = 0;
                 filterEndTime = Infinity;
+            } else if (input.includes('-')) {
+                // --- [NEW] Logic กรองแบบช่วงเวลา (Range) เช่น 16:00 - 16:15 ---
+                searchKeyword = "";
+                const parts = input.split('-').map(p => p.trim());
+                const startTimeStr = parts[0];
+                const endTimeStr = parts[1];
+
+                try {
+                    const now = new Date();
+
+                    // Parse Start Time
+                    const sParts = startTimeStr.split(':');
+                    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                        parseInt(sParts[0]), parseInt(sParts[1]), sParts[2] ? parseInt(sParts[2]) : 0);
+
+                    // Parse End Time
+                    const eParts = endTimeStr.split(':');
+                    const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                        parseInt(eParts[0]), parseInt(eParts[1]), eParts[2] ? parseInt(eParts[2]) : 59);
+
+                    lastClearTime = startDate.getTime();
+                    filterEndTime = endDate.getTime();
+
+                    console.log(`Filtering Range: ${startDate.toLocaleTimeString()} to ${endDate.toLocaleTimeString()}`);
+                } catch (e) {
+                    alert("รูปแบบช่วงเวลาไม่ถูกต้อง (ตัวอย่าง: 16:00 - 16:15)");
+                }
             } else {
+                // Logic เดิม: ตรวจสอบว่าเป็นเวลาเดี่ยว หรือ Keyword
                 const isTimeFormat = /^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/.test(input);
 
                 if (isTimeFormat) {
@@ -257,16 +398,12 @@
                     try {
                         const now = new Date();
                         const parts = input.split(':');
-                        const hours = parseInt(parts[0]);
-                        const minutes = parseInt(parts[1]);
-                        const seconds = parts[2] ? parseInt(parts[2]) : null;
+                        const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                            parseInt(parts[0]), parseInt(parts[1]), parts[2] ? parseInt(parts[2]) : 0);
 
-                        const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds || 0);
-                        
-                        if (seconds === null) {
+                        if (!parts[2]) { // ถ้าพิมพ์แค่ HH:mm ให้ดูทั้งนาทีนั้น
                             let endDate = new Date(startDate);
                             endDate.setSeconds(59);
-                            endDate.setMilliseconds(999);
                             filterEndTime = endDate.getTime();
                         } else {
                             filterEndTime = Infinity;
@@ -280,10 +417,10 @@
                 }
             }
 
-            // Refresh UI
+            // ล้างหน้าจอและวาดใหม่ตามเงื่อนไข Filter
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
-            
+
             setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
         }
 
@@ -291,7 +428,6 @@
             const logTime = data.time ? new Date(data.time).getTime() : Date.now();
             const url = (data.url || "").toLowerCase();
 
-            // Check Filter Conditions
             if (logTime < lastClearTime || logTime > filterEndTime) return;
             if (searchKeyword && !url.includes(searchKeyword)) return;
 
@@ -372,9 +508,11 @@
             filterEndTime = Infinity;
             searchKeyword = "";
             document.getElementById('exact-time-filter').value = "";
+            document.getElementById('time-filter').value = "0";
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
         }
     </script>
 </body>
+
 </html>
