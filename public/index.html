@@ -129,7 +129,7 @@
         .title-req { color: #38bdf8; }
         .title-res { color: var(--accent-res); }
 
-        pre {
+        /* pre {
             background-color: rgba(0,0,0,0.3);
             padding: 0.75rem;
             border-radius: 8px;
@@ -139,7 +139,24 @@
             color: #e2e8f0;
             border: 1px solid rgba(255,255,255,0.05);
             max-height: 400px;
-        }
+        } */
+        pre {
+        background-color: rgba(0,0,0,0.3);
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        
+        /* เพิ่ม 3 บรรทัดนี้ครับ */
+        max-width: 100%;           /* ไม่ให้กว้างเกินตัว container ของมัน */
+        white-space: pre-wrap;     /* ให้ตัดบรรทัดใหม่เมื่อข้อความยาวเกิน */
+        word-break: break-all;     /* สั่งให้ตัดคำ (โดยเฉพาะพวก Token ยาวๆ) */
+        
+        overflow-x: auto;
+        margin: 0;
+        color: #e2e8f0;
+        border: 1px solid rgba(255,255,255,0.05);
+        max-height: 400px; /* หรือปรับตามความเหมาะสม */
+    }
 
         .status-badge {
             font-size: 0.75rem;
