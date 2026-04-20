@@ -8,40 +8,38 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.use(express.json());
 
-// 🧠 เก็บ logs (optional ใช้ debug ใน console)
+// 🧠 เก็บ logs (In-memory สำหรับทดสอบบน Vercel ชั่วคราว)
 let logs = [];
-const WebSocket = require('ws');
+const MAX_LOGS = 50;
 
-const wss = new WebSocket.Server({ noServer: true });
-
-// เก็บ client
-let clients = [];
-
-wss.on('connection', (ws) => {
-    console.log('✅ New WebSocket Client Connected');
-    clients.push(ws);
-
-    ws.on('close', () => {
-        console.log('❌ WebSocket Client Disconnected');
-        clients = clients.filter(c => c !== ws);
-    });
-});
-
-// ส่ง log ไป frontend
-function broadcastLog(log) {
-    const data = JSON.stringify(log);
-    console.log(`📡 Broadcasting ${log.type} for: ${log.url || 'N/A'}`);
-    clients.forEach(ws => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.send(data);
-        }
-    });
+// ฟังก์ชันเก็บ log
+function addLog(logData) {
+    const log = {
+        ...logData,
+        id: logData.id || Date.now() + Math.random().toString(36).substr(2, 9),
+        time: logData.time || new Date().toISOString()
+    };
+    
+    console.log(`📝 Log added: ${log.type} for: ${log.url || 'N/A'}`);
+    
+    logs.push(log);
+    
+    // จำกัดจำนวนเพื่อไม่ให้ Memory เต็มบน Serverless
+    if (logs.length > MAX_LOGS) {
+        logs.shift();
+    }
 }
+
+// Endpoint สำหรับดึง logs (Polling)
+app.get('/logs', (req, res) => {
+    // บน Vercel ข้อมูลนี้จะหายไปเมื่อแอป Sleep
+    res.json(logs);
+});
 
 // Logging Middleware
 app.use((req, res, next) => {
     // ข้าม favicon และไฟล์ static
-    if (req.originalUrl === '/favicon.ico' || req.originalUrl.startsWith('/js/')) {
+    if (req.originalUrl === '/favicon.ico' || req.originalUrl.startsWith('/js/') || req.originalUrl === '/logs') {
         return next();
     }
 
@@ -68,7 +66,7 @@ app.use((req, res, next) => {
         status: "processing"
     };
 
-    broadcastLog(requestLog);
+    addLog(requestLog);
 
     // ส่งตอนจบ (Response)
     res.on('finish', () => {
@@ -91,7 +89,7 @@ app.use((req, res, next) => {
             url: req.originalUrl // ใส่ไว้เพื่อให้ debug ง่ายใน console
         };
 
-        broadcastLog(responseLog);
+        addLog(responseLog);
     });
 
     next();
@@ -285,9 +283,8 @@ function verifyToken(req, res, next) {
 app.post('/logs', (req, res) => {
     const log = req.body;
     console.log("Log from Flutter:", log);
-    
-    // Broadcast ไปยังหน้าเว็บผ่าน WebSocket ทันที
-    broadcastLog({
+
+    addLog({
         ...log,
         id: log.id || "flutter-" + Date.now(),
         time: new Date().toISOString(),
@@ -307,8 +304,7 @@ app.post('/logs/request', (req, res) => {
     };
 
     console.log('📥 Request Log:', log);
-    logs.push(log);
-    broadcastLog(log); 
+    addLog(log); 
 
     res.json({ success: true });
 });
@@ -323,32 +319,28 @@ app.post('/logs/response', (req, res) => {
     };
 
     console.log('📤 Response Log:', log);
-    logs.push(log);
-    broadcastLog(log);
+    addLog(log);
 
     res.json({ success: true });
 });
 
 // 🚀 START SERVER
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
-
-server.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit('connection', ws, request);
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Server running on port ${PORT}`);
     });
-});
+}
+
+module.exports = app;
 
 
 //กัน App ตายจาก Error นอก Express (เช่น Promise ที่ไม่ได้ catch)
 // 🛠 Global Express Error Handler (ควรอยู่ท้ายสุดของ routes)
 app.use((err, req, res, next) => {
     console.error('❌ Express Error:', err.stack);
-    
-    // พยายามส่ง log ไปหน้าจอ Monitor ด้วยถ้าทำได้
-    broadcastLog({
+
+    addLog({
         id: 'error-' + Date.now(),
         type: 'error',
         statusCode: 500,
@@ -371,18 +363,16 @@ app.use((err, req, res, next) => {
 // 🛑 Global Node.js Error Handlers (กัน App ตายจาก Error นอก Express)
 process.on('uncaughtException', (err) => {
     console.error('❌ CRITICAL: Uncaught Exception:', err);
-    // พยายามส่ง log ไป monitor ก่อนตาย (ถ้ายังทำได้)
-    broadcastLog({
+    addLog({
         type: 'error',
         message: 'CRITICAL: Uncaught Exception: ' + err.message,
         time: new Date().toISOString()
     });
-    // ปกติแนะนำให้ restart app (เช่นใช้ pm2) เพราะ state ของ app อาจจะเพี้ยนไปแล้ว
 });
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
-    broadcastLog({
+    addLog({
         type: 'error',
         message: 'Unhandled Rejection: ' + reason,
         time: new Date().toISOString()

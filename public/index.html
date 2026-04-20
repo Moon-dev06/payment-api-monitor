@@ -201,37 +201,37 @@
     const container = document.getElementById('logs-container');
     const statusDot = document.getElementById('conn-status');
     
-    // Connect to the current host
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}`);
+    // Polling function to fetch logs
+    async function fetchLogs() {
+        try {
+            const response = await fetch('/logs');
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const logs = await response.json();
+            
+            // Update status dot to show we are polling successfully
+            statusDot.classList.remove('offline');
+            
+            // Process logs
+            logs.forEach(log => {
+                if (log.type === 'request') {
+                    createCard(log);
+                } else if (log.type === 'response' || log.type === 'error') {
+                    updateCard(log);
+                }
+            });
+        } catch (error) {
+            console.error('Polling error:', error);
+            statusDot.classList.add('offline');
+        }
+    }
+
+    // Start polling every 2 seconds
+    fetchLogs(); // Initial fetch
+    setInterval(fetchLogs, 2000);
     
     // Store for cards by ID
     const cards = {};
-
-    ws.onopen = () => {
-        console.log('Connected to WebSocket');
-        statusDot.classList.remove('offline');
-    };
-    
-    ws.onclose = () => {
-        console.log('Disconnected from WebSocket');
-        statusDot.classList.add('offline');
-    };
-    
-    ws.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            console.log("Received data:", data);
-            
-            if (data.type === 'request') {
-                createCard(data);
-            } else if (data.type === 'response' || data.type === 'error') {
-                updateCard(data);
-            }
-        } catch (e) {
-            console.error("Error processing message:", e);
-        }
-    };
 
     function createCard(data) {
         // If card already exists (e.g. repeated request log), don't create new
