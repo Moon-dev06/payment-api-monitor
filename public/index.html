@@ -239,7 +239,16 @@
         <div>
             <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
         </div>
-        <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+        <div style="display: flex; gap: 10px;">
+            <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()">
+                <option value="0">All Time</option>
+                <option value="1">Last 1 Minute</option>
+                <option value="5">Last 5 Minutes</option>
+                <option value="10">Last 10 Minutes</option>
+                <option value="30">Last 30 Minutes</option>
+            </select>
+            <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+        </div>
     </header>
 
     <div id="logs-container"></div>
@@ -373,6 +382,25 @@
             }
 
             console.log("Logs cleared on UI. Filtering out old logs.");
+        }
+
+        // เพิ่มฟังก์ชันนี้ลงใน <script>
+        function applyTimeFilter() {
+            const filterMinutes = parseInt(document.getElementById('time-filter').value);
+
+            // ล้างหน้าจอเดิมออกก่อน
+            container.innerHTML = '';
+            for (const key in cards) delete cards[key];
+
+            if (filterMinutes === 0) {
+                // ถ้าเลือก All Time ให้รีเซ็ต lastClearTime เป็น 0
+                lastClearTime = 0;
+            } else {
+                // คำนวณเวลาถอยหลังจากปัจจุบัน (นาที * 60 วินาที * 1000 มิลลิวินาที)
+                lastClearTime = Date.now() - (filterMinutes * 60 * 1000);
+            }
+
+            console.log(`Filtering logs from the last ${filterMinutes} minutes`);
         }
     </script>
 </body>
