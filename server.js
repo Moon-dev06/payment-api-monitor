@@ -50,19 +50,11 @@ app.use((req, res, next) => {
     const startTime = Date.now();
     const logId = Date.now() + Math.random().toString(36).substr(2, 9);
 
-    // ดักจับ response body ให้แม่นยำขึ้น (ครอบคลุมทั้ง json และ send)
-    const originalJson = res.json;
-    res.json = function (obj) {
-        res.locals.responseBody = obj;
-        return originalJson.call(this, obj);
-    };
-
-    const originalSend = res.send;
+    // ดักจับ response body ให้แม่นยำขึ้น
+    const oldSend = res.send;
     res.send = function (data) {
-        if (!res.locals.responseBody) {
-            res.locals.responseBody = data;
-        }
-        return originalSend.apply(this, arguments);
+        res.locals.responseBody = data;
+        return oldSend.apply(res, arguments);
     };
 
     // ส่งตอนเริ่ม (Request)
@@ -72,7 +64,8 @@ app.use((req, res, next) => {
         method: req.method,
         url: req.originalUrl,
         headers: req.headers,
-        body: req.body || null,
+        // สำหรับ GET ให้เอา query มาโชว์เป็น body เพื่อให้เห็นข้อมูลบน monitor
+        body: req.method === 'GET' ? req.query : (req.body || null),
         type: 'request',
         status: "processing",
         source: 'server'
