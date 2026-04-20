@@ -50,11 +50,19 @@ app.use((req, res, next) => {
     const startTime = Date.now();
     const logId = Date.now() + Math.random().toString(36).substr(2, 9);
 
-    // ดักจับ response body ให้แม่นยำขึ้น
-    const oldSend = res.send;
+    // ดักจับ response body ให้แม่นยำขึ้น (ครอบคลุมทั้ง json และ send)
+    const originalJson = res.json;
+    res.json = function (obj) {
+        res.locals.responseBody = obj;
+        return originalJson.call(this, obj);
+    };
+
+    const originalSend = res.send;
     res.send = function (data) {
-        res.locals.responseBody = data;
-        return oldSend.apply(res, arguments);
+        if (!res.locals.responseBody) {
+            res.locals.responseBody = data;
+        }
+        return originalSend.apply(this, arguments);
     };
 
     // ส่งตอนเริ่ม (Request)
