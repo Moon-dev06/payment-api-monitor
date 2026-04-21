@@ -433,16 +433,40 @@
         }
 
         function clearLogs() {
+            lastClearTime = Date.now();
+            filterEndTime = Infinity;
+            searchKeyword = "";
+            document.getElementById('exact-time-filter').value = "";
+            document.getElementById('time-filter').value = "0";
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
         }
 
         async function deleteServerLogs() {
-            if (confirm("ลบข้อมูลทั้งหมดใน Server?")) {
-                await fetch('/logs/delete', { method: 'DELETE' });
-                clearLogs();
+            if (!confirm("คุณต้องการลบ Log ทั้งหมดออกจาก Server ใช่หรือไม่? (ไม่สามารถย้อนคืนได้)")) {
+                return;
+            }
+
+            try {
+                loadingOverlay.style.display = 'flex';
+                // สมมติว่าสร้าง Endpoint ไว้ที่ /logs/delete
+                const response = await fetch('/logs/delete', { method: 'DELETE' });
+
+                if (response.ok) {
+                    // เมื่อลบที่ Server สำเร็จ ก็ล้างหน้าจอ Frontend ด้วย
+                    clearLogs();
+                    alert("ลบข้อมูลสำเร็จ");
+                } else {
+                    alert("เกิดข้อผิดพลาดในการลบข้อมูลที่ Server");
+                }
+            } catch (error) {
+                console.error("Error deleting logs:", error);
+                alert("ไม่สามารถติดต่อ Server ได้");
+            } finally {
+                loadingOverlay.style.display = 'none';
             }
         }
+
     </script>
 </body>
 </html>
