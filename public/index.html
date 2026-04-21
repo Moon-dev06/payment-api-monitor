@@ -296,11 +296,55 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* แถบสถานะด้านบนสุดของ Card */
+        .status-bar {
+            width: 100%;
+            padding: 4px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border-radius: 8px 8px 0 0;
+            /* มนเฉพาะมุมบน */
+            margin-bottom: 5px;
+        }
+
+        /* สีสำหรับ Error (แดง) */
+        .status-error {
+            background-color: #ff4d4f;
+            /* สีแดงแบบในรูป */
+            color: white;
+        }
+
+        /* สีสำหรับ Success (เขียว) */
+        .status-success {
+            background-color: #52c41a;
+            /* สีเขียว Success */
+            color: white;
+        }
+
+        /* ปรับแต่ง Transaction Card ให้รองรับแถบด้านบน */
+        .transaction-card {
+            background: #1e2227;
+            /* สีพื้นหลังการ์ด */
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            overflow: hidden;
+            /* เพื่อให้แถบสีไม่ล้นขอบมน */
+        }
+
+        /* ปรับ Header ให้อยู่ใต้แถบสี */
+        .card-header {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
+    
 </head>
-
 <body>
-
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div id="loading-text" style="font-size: 0.9rem; color: var(--blue-sky);">Filtering...</div>
@@ -319,10 +363,10 @@
 
                 <div class="action-group">
                     <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()">
-                        <option value="0">All Time</option>
+                        <option value="0" selected>All Time</option>
                         <option value="1">Last 1 Minute</option>
                         <option value="5">Last 5 Minutes</option>
-                        <option value="30" selected>Last 30 Minutes</option>
+                        <option value="30">Last 30 Minutes</option>
                     </select>
                     <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
                     <button class="btn-clear btn-delete" onclick="deleteServerLogs()">Delete All (Server)</button>
@@ -416,7 +460,7 @@
         function createCard(data) {
             const logTime = new Date(data.time).getTime();
 
-            // 1. แก้ไขการกรองเวลา: ถ้าเป็น All Time (0) ให้ผ่านตลอด
+            // กรองข้อมูลตามเงื่อนไขเดิม
             if (lastClearTime !== 0 && logTime < lastClearTime) return;
             if (filterEndTime !== Infinity && logTime > filterEndTime) return;
             if (searchKeyword && !(data.url).toLowerCase().includes(searchKeyword)) return;
@@ -426,29 +470,38 @@
             card.className = 'transaction-card';
             card.id = `card-${data.id}`;
 
+            // --- ส่วนที่เพิ่ม/แก้ไขใหม่ ---
+            const isError = data.status >= 400 || data.status === 0; // สมมติว่า status >= 400 คือ error
+            const statusType = isError ? 'ERROR' : 'SUCCESS';
+            const statusClass = isError ? 'status-error' : 'status-success';
+
             const method = (data.method || 'GET').toUpperCase();
             const methodClass = method === 'POST' ? 'method-post' : 'method-get';
 
             card.innerHTML = `
-                <div class="card-header">
-                    <div>
-                        <span class="source-badge">${getFriendlyName(data.url)}</span>
-                        <span class="method-badge ${methodClass}">${method}</span>
-                        <span class="url-text">${data.url || ''}</span>
-                    </div>
-                    <div class="time-text">${new Date(logTime).toLocaleTimeString()}</div>
-                </div>
-                <div class="card-body">
-                    <div class="log-section">
-                        <div class="section-title" style="color: var(--blue-sky)">📦 Request</div>
-                        <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
-                    </div>
-                    <div class="log-section" id="res-section-${data.id}">
-                        <div class="section-title" style="color: var(--accent-res)">📥 Response</div>
-                        <pre>Waiting for response...</pre>
-                    </div>
-                </div>
-            `;
+        <div class="status-bar ${statusClass}">${statusType}</div>
+        
+        <div class="card-header">
+            <div>
+                <span class="source-badge">${getFriendlyName(data.url)}</span>
+                <span class="method-badge ${methodClass}">${method}</span>
+                <span class="url-text">${data.url || ''}</span>
+            </div>
+            <div class="time-text">${new Date(logTime).toLocaleTimeString()}</div>
+        </div>
+        <div class="card-body">
+            <div class="log-section">
+                <div class="section-title" style="color: var(--blue-sky)">📦 REQUEST</div>
+                <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
+            </div>
+            <div class="log-section" id="res-section-${data.id}">
+                <div class="section-title" style="color: var(--accent-res)">📥 RESPONSE [${data.status || '...'}]</div>
+                <pre>${data.response ? JSON.stringify(data.response, null, 2) : 'Waiting for response...'}</pre>
+            </div>
+        </div>
+    `;
+            // ---------------------------
+
             container.prepend(card);
             cards[data.id] = card;
         }
