@@ -456,7 +456,7 @@
             const resSection = document.getElementById(`res-section-${data.id}`);
             if (!resSection) return;
             resSection.innerHTML = `
-                <div class="section-title" style="color: var(--accent-res)">📥 Response [${data.statusCode || 200}]</div>
+                <div class="section-title" style="color: var(--accent-res)">📥 Response [${data.statusCode || 200}] ${data.Error} </div>
                 <pre>${JSON.stringify(data.response, null, 2)}</pre>
             `;
         }
