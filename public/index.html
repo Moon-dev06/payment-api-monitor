@@ -61,7 +61,7 @@
 
         /* --- Header Layout (Desktop First) --- */
         header {
-            padding: 1rem 2rem;
+            padding: 1.5rem 2rem 1rem 2rem;
             background-color: var(--card-bg);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -308,28 +308,29 @@
 
     <header>
         <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
-
-        <div class="header-controls">
-            <div class="search-container">
-                <div class="search-group">
-                    <input type="text" id="exact-time-filter" class="btn-clear" placeholder="ค้นหาที่นี่...">
-                    <button class="btn-clear btn-apply" onclick="applyExactTimeFilter()">Apply</button>
+        <div class="header-top-row">
+            <div class="header-controls">
+                <div class="search-container">
+                    <div class="search-group">
+                        <input type="text" id="exact-time-filter" class="btn-clear" placeholder="ค้นหาที่นี่...">
+                        <button class="btn-clear btn-apply" onclick="applyExactTimeFilter()">Apply</button>
+                    </div>
                 </div>
-                <small style="color: var(--text-secondary); font-size: 0.65rem;">
-                    ** Keyword หรือ ช่วงเวลา 16:00 - 16:15 หรือ 16:00 **
-                </small>
-            </div>
 
-            <div class="action-group">
-                <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()">
-                    <option value="0">All Time</option>
-                    <option value="1">Last 1 Minute</option>
-                    <option value="5">Last 5 Minutes</option>
-                    <option value="30" selected>Last 30 Minutes</option>
-                </select>
-                <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
-                <button class="btn-clear btn-delete" onclick="deleteServerLogs()">Delete All (Server)</button>
+                <div class="action-group">
+                    <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()">
+                        <option value="0">All Time</option>
+                        <option value="1">Last 1 Minute</option>
+                        <option value="5">Last 5 Minutes</option>
+                        <option value="30" selected>Last 30 Minutes</option>
+                    </select>
+                    <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+                    <button class="btn-clear btn-delete" onclick="deleteServerLogs()">Delete All (Server)</button>
+                </div>
             </div>
+            <small style="color: var(--text-secondary); font-size: 0.65rem; display: block; margin-top: 8px;">
+                ** Keyword หรือ ช่วงเวลา 16:00 - 16:15 หรือ 16:00 **
+            </small>
         </div>
     </header>
 
@@ -455,8 +456,12 @@
         function updateCard(data) {
             const resSection = document.getElementById(`res-section-${data.id}`);
             if (!resSection) return;
+
+            const isError = data.statusCode >= 400 || data.Error;
+            const statusColor = isError ? 'var(--accent-error)' : 'var(--accent-res)';
+
             resSection.innerHTML = `
-                <div class="section-title" style="color: var(--accent-res)">📥 Response [${data.statusCode || 200}] ${data.Error} </div>
+                <div class="section-title" style="color: ${statusColor}">📥 Response [${data.statusCode || 200}] ${data.Error || ''} </div>
                 <pre>${JSON.stringify(data.response, null, 2)}</pre>
             `;
         }
