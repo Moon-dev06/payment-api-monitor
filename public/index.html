@@ -418,7 +418,7 @@
             // 1. แก้ไขการกรองเวลา: ถ้าเป็น All Time (0) ให้ผ่านตลอด
             if (lastClearTime !== 0 && logTime < lastClearTime) return;
             if (filterEndTime !== Infinity && logTime > filterEndTime) return;
-            if (searchKeyword && !(data.url || "").toLowerCase().includes(searchKeyword)) return;
+            if (searchKeyword && !(data.url).toLowerCase().includes(searchKeyword)) return;
             if (document.getElementById(`card-${data.id}`)) return;
 
             const card = document.createElement('div');
