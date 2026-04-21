@@ -296,6 +296,7 @@
                 grid-template-columns: 1fr;
             }
         }
+
         /* แถบสถานะด้านบนสุดของ Card */
         .status-bar {
             width: 100%;
@@ -342,8 +343,9 @@
             align-items: center;
         }
     </style>
-    
+
 </head>
+
 <body>
     <div id="loading-overlay">
         <div class="spinner"></div>
@@ -470,10 +472,22 @@
             card.className = 'transaction-card';
             card.id = `card-${data.id}`;
 
-            // --- ส่วนที่เพิ่ม/แก้ไขใหม่ ---
-            const isError = data.status >= 400 || data.status === 0; // สมมติว่า status >= 400 คือ error
-            const statusType = isError ? 'ERROR' : 'SUCCESS';
-            const statusClass = isError ? 'status-error' : 'status-success';
+            // แปลงค่า status เป็นตัวเลขเผื่อไว้ก่อน
+            const statusCode = parseInt(data.status);
+
+            // เงื่อนไข: ถ้าไม่มี status (รอผล) ให้เป็นสีเทา / ถ้า >= 400 ให้เป็น Error (แดง) / ถ้า < 400 ให้เป็น Success (เขียว)
+            let statusType = 'PENDING';
+            let statusClass = 'status-pending'; // เพิ่มสีเทาสำหรับตอนรอ
+
+            if (!isNaN(statusCode)) {
+                if (statusCode >= 400) {
+                    statusType = 'ERROR';
+                    statusClass = 'status-error';
+                } else {
+                    statusType = 'SUCCESS';
+                    statusClass = 'status-success';
+                }
+            }
 
             const method = (data.method || 'GET').toUpperCase();
             const methodClass = method === 'POST' ? 'method-post' : 'method-get';
