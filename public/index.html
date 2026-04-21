@@ -53,7 +53,11 @@
             margin-bottom: 10px;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* --- Header Layout (Desktop First) --- */
         header {
@@ -157,7 +161,7 @@
 
         #exact-time-filter {
             width: 200px;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         /* --- Logs Content --- */
@@ -195,8 +199,13 @@
             color: #000;
         }
 
-        .method-get { background-color: var(--accent-get); }
-        .method-post { background-color: var(--accent-post); }
+        .method-get {
+            background-color: var(--accent-get);
+        }
+
+        .method-post {
+            background-color: var(--accent-post);
+        }
 
         .source-badge {
             font-size: 0.7rem;
@@ -208,8 +217,16 @@
             font-weight: bold;
         }
 
-        .url-text { font-family: monospace; font-size: 0.9rem; word-break: break-all; }
-        .time-text { font-size: 0.8rem; color: var(--text-secondary); }
+        .url-text {
+            font-family: monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .time-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
 
         .card-body {
             display: grid;
@@ -218,8 +235,17 @@
             background-color: var(--border);
         }
 
-        .log-section { padding: 1.25rem; background-color: var(--card-bg); }
-        .section-title { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-bottom: 0.75rem; }
+        .log-section {
+            padding: 1.25rem;
+            background-color: var(--card-bg);
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
 
         pre {
             background-color: rgba(0, 0, 0, 0.3);
@@ -261,7 +287,7 @@
                 flex-wrap: wrap;
             }
 
-            .action-group > * {
+            .action-group>* {
                 flex: 1;
                 text-align: center;
             }
@@ -282,7 +308,7 @@
 
     <header>
         <h1><span id="conn-status" class="status-dot offline"></span> Payment API Monitor</h1>
-        
+
         <div class="header-controls">
             <div class="search-container">
                 <div class="search-group">
@@ -355,7 +381,7 @@
             loadingOverlay.style.display = 'flex';
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
-            
+
             if (filterMinutes === 0) lastClearTime = 0;
             else lastClearTime = Date.now() - (filterMinutes * 60 * 1000);
 
@@ -388,8 +414,13 @@
 
         function createCard(data) {
             const logTime = new Date(data.time).getTime();
-            if (logTime < lastClearTime || logTime > filterEndTime) return;
-            if (searchKeyword && !(data.url || "").toLowerCase().includes(searchKeyword)) return;
+            const url = (data.url || "").toLowerCase();
+
+            // 1. แก้ไขการกรองเวลา: ถ้าเป็น All Time (0) ให้ผ่านตลอด
+            if (lastClearTime !== 0 && logTime < lastClearTime) return;
+            if (filterEndTime !== Infinity && logTime > filterEndTime) return;
+            // if (logTime < lastClearTime || logTime > filterEndTime) return;
+            // if (searchKeyword && !(data.url || "").toLowerCase().includes(searchKeyword)) return;
             if (document.getElementById(`card-${data.id}`)) return;
 
             const card = document.createElement('div');
@@ -469,4 +500,5 @@
 
     </script>
 </body>
+
 </html>
