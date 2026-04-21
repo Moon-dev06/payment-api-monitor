@@ -296,12 +296,10 @@ app.use((err, req, res, next) => {
     });
 });
 
-// สมมติว่าเก็บ log ไว้ในตัวแปร array ชื่อ allLogs
-let allLogs = []; 
-
+// แก้จาก allLogs เป็น logs (ให้ตรงกับตัวแปรที่ใช้เก็บข้อมูลด้านบน)
 app.delete('/logs/delete', (req, res) => {
-    allLogs = []; // ล้างข้อมูลในตัวแปร
-    // หรือถ้าเก็บเป็นไฟล์: fs.writeFileSync('logs.json', JSON.stringify([]));
+    logs = []; // ล้างข้อมูลในตัวแปรหลักที่ใช้แสดงผล
+    console.log("🗑️ All server logs cleared"); 
     res.status(200).send({ message: "All logs deleted successfully" });
 });
 
