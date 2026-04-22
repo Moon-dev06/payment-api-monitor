@@ -367,7 +367,9 @@
                     <select id="time-filter" class="btn-clear" onchange="applyTimeFilter()">
                         <option value="0" selected>All Time</option>
                         <option value="1">Last 1 Minute</option>
+                        <option value="5">Last 3 Minutes</option>
                         <option value="5">Last 5 Minutes</option>
+                        <option value="5">Last 10 Minutes</option>
                         <option value="30">Last 30 Minutes</option>
                     </select>
                     <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
@@ -441,18 +443,33 @@
             container.innerHTML = '';
             for (const key in cards) delete cards[key];
 
+            // ล้างค่าเดิมก่อน
+            searchKeyword = ""; 
+            lastClearTime = 0; 
+            filterEndTime = Infinity;
+
             if (!input) {
-                searchKeyword = ""; lastClearTime = 0; filterEndTime = Infinity;
+                // ถ้าว่าง ให้โชว์ทั้งหมด
             } else if (input.includes('-')) {
+                // กรณีใส่เป็นช่วงเวลา 10:30 - 10:35
                 const parts = input.split('-').map(p => p.trim());
                 try {
                     const now = new Date();
                     const s = parts[0].split(':');
                     const e = parts[1].split(':');
-                    lastClearTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(s[0]), parseInt(s[1])).getTime();
-                    filterEndTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(e[0]), parseInt(e[1])).getTime();
-                } catch (e) { alert("Format Error"); }
+                    lastClearTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(s[0]), parseInt(s[1]), 0).getTime();
+                    // ให้ครอบคลุมไปจนถึงวินาทีสุดท้ายของนาทีนั้น (59 วินาที)
+                    filterEndTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(e[0]), parseInt(e[1]), 59).getTime();
+                } catch (e) { alert("รูปแบบเวลาผิด (ตัวอย่าง 10:30-10:35)"); }
+            } else if (input.includes(':')) {
+                // กรณีใส่เวลาเดียว เช่น 10:36 (ให้โชว์ตั้งแต่ 10:36 เป็นต้นไป)
+                try {
+                    const now = new Date();
+                    const s = input.split(':');
+                    lastClearTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(s[0]), parseInt(s[1]), 0).getTime();
+                } catch (e) { alert("รูปแบบเวลาผิด (ตัวอย่าง 10:30)"); }
             } else {
+                // กรณีเสิร์ชด้วย Keyword ปกติ
                 searchKeyword = input.toLowerCase();
             }
 
