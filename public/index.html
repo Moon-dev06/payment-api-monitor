@@ -501,6 +501,22 @@
             setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
         }
 
+        function copyToClipboard(btn) {
+            const pre = btn.parentElement.querySelector('pre');
+            const text = pre.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = 'var(--accent-get)';
+                btn.style.color = '#000';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+
         function createCard(data) {
             const logTime = new Date(data.time).getTime();
             const friendlyName = getFriendlyName(data.url);
@@ -508,30 +524,22 @@
             // กรองข้อมูล
             if (lastClearTime !== 0 && logTime < lastClearTime) return;
             if (filterEndTime !== Infinity && logTime > filterEndTime) return;
-            
-            // แก้ไขจุดนี้: ให้เช็คจาก friendlyName แทน data.url
             if (searchKeyword && !friendlyName.toLowerCase().includes(searchKeyword)) return;
-            
             if (document.getElementById(`card-${data.id}`)) return;
 
             const card = document.createElement('div');
             card.className = 'transaction-card';
             card.id = `card-${data.id}`;
 
-            // แปลงค่า status เป็นตัวเลขเผื่อไว้ก่อน
             const statusCode = parseInt(data.status);
-
-            // เงื่อนไข: ถ้าไม่มี status (รอผล) ให้เป็นสีเทา / ถ้า >= 400 ให้เป็น Error (แดง) / ถ้า < 400 ให้เป็น Success (เขียว)
             let statusType = 'PENDING';
-            let statusClass = 'status-pending'; // เพิ่มสีเทาสำหรับตอนรอ
+            let statusClass = 'status-pending';
 
             if (!isNaN(statusCode)) {
                 if (statusCode >= 400) {
-                    statusType = 'ERROR';
-                    statusClass = 'status-error';
+                    statusType = 'ERROR'; statusClass = 'status-error';
                 } else {
-                    statusType = 'SUCCESS';
-                    statusClass = 'status-success';
+                    statusType = 'SUCCESS'; statusClass = 'status-success';
                 }
             }
 
@@ -540,7 +548,6 @@
 
             card.innerHTML = `
         <div class="status-bar ${statusClass}">${statusType}</div>
-        
         <div class="card-header">
             <div>
                 <span class="source-badge">${getFriendlyName(data.url)}</span>
@@ -551,17 +558,17 @@
         </div>
         <div class="card-body">
             <div class="log-section">
+                <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
                 <div class="section-title" style="color: var(--blue-sky)">📦 REQUEST</div>
                 <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
             </div>
             <div class="log-section" id="res-section-${data.id}">
+                <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
                 <div class="section-title" style="color: var(--accent-res)">📥 RESPONSE [${data.status || '...'}]</div>
                 <pre>${data.response ? JSON.stringify(data.response, null, 2) : 'Waiting for response...'}</pre>
             </div>
         </div>
     `;
-            // ---------------------------
-
             container.prepend(card);
             cards[data.id] = card;
         }
@@ -576,7 +583,6 @@
             const statusCode = parseInt(data.statusCode);
             const isError = statusCode >= 400 || data.Error;
 
-            // 1. อัปเดตแถบสถานะด้านบน
             if (statusBar) {
                 if (isError) {
                     statusBar.textContent = 'ERROR';
@@ -587,10 +593,10 @@
                 }
             }
 
-            // 2. อัปเดตเนื้อหา Response
             if (resSection) {
                 const statusColor = isError ? 'var(--accent-error)' : 'var(--accent-res)';
                 resSection.innerHTML = `
+                    <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
                     <div class="section-title" style="color: ${statusColor}">📥 Response [${statusCode || 200}] ${data.Error || ''} </div>
                     <pre>${data.response ? JSON.stringify(data.response, null, 2) : 'No data'}</pre>
                 `;
