@@ -461,11 +461,15 @@
 
         function createCard(data) {
             const logTime = new Date(data.time).getTime();
+            const friendlyName = getFriendlyName(data.url);
 
-            // กรองข้อมูลตามเงื่อนไขเดิม
+            // กรองข้อมูล
             if (lastClearTime !== 0 && logTime < lastClearTime) return;
             if (filterEndTime !== Infinity && logTime > filterEndTime) return;
-            if (searchKeyword && !(data.url).toLowerCase().includes(searchKeyword)) return;
+            
+            // แก้ไขจุดนี้: ให้เช็คจาก friendlyName แทน data.url
+            if (searchKeyword && !friendlyName.toLowerCase().includes(searchKeyword)) return;
+            
             if (document.getElementById(`card-${data.id}`)) return;
 
             const card = document.createElement('div');
