@@ -521,16 +521,34 @@
         }
 
         function updateCard(data) {
+            const card = document.getElementById(`card-${data.id}`);
+            if (!card) return;
+
             const resSection = document.getElementById(`res-section-${data.id}`);
-            if (!resSection) return;
+            const statusBar = card.querySelector('.status-bar');
 
-            const isError = data.statusCode >= 400 || data.Error;
-            const statusColor = isError ? 'var(--accent-error)' : 'var(--accent-res)';
+            const statusCode = parseInt(data.statusCode);
+            const isError = statusCode >= 400 || data.Error;
 
-            resSection.innerHTML = `
-                <div class="section-title" style="color: ${statusColor}">📥 Response [${data.statusCode || 200}] ${data.Error || ''} </div>
-                <pre>${JSON.stringify(data.response, null, 2)}</pre>
-            `;
+            // 1. อัปเดตแถบสถานะด้านบน
+            if (statusBar) {
+                if (isError) {
+                    statusBar.textContent = 'ERROR';
+                    statusBar.className = 'status-bar status-error';
+                } else {
+                    statusBar.textContent = 'SUCCESS';
+                    statusBar.className = 'status-bar status-success';
+                }
+            }
+
+            // 2. อัปเดตเนื้อหา Response
+            if (resSection) {
+                const statusColor = isError ? 'var(--accent-error)' : 'var(--accent-res)';
+                resSection.innerHTML = `
+                    <div class="section-title" style="color: ${statusColor}">📥 Response [${statusCode || 200}] ${data.Error || ''} </div>
+                    <pre>${data.response ? JSON.stringify(data.response, null, 2) : 'No data'}</pre>
+                `;
+            }
         }
 
         function clearLogs() {
