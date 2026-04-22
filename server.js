@@ -14,24 +14,17 @@ const MAX_LOGS = 200;
 
 // ฟังก์ชันเก็บ log
 function addLog(logData) {
-    const existingIndex = logs.findIndex(l => l.id === logData.id);
+    const log = {
+        ...logData,
+        id: logData.id || Date.now() + Math.random().toString(36).substr(2, 9),
+        time: logData.time || new Date().toISOString()
+    };
     
-    if (existingIndex > -1) {
-        // ถ้ามีอยู่แล้ว (เช่น มี Request แล้วอันนี้เป็น Response) ให้รวมข้อมูลกัน
-        logs[existingIndex] = { ...logs[existingIndex], ...logData };
-        console.log(`🔄 Log updated: ${logData.id}`);
-    } else {
-        // ถ้ายังไม่มี ให้เพิ่มเข้าไปใหม่
-        const log = {
-            ...logData,
-            id: logData.id || Date.now() + Math.random().toString(36).substr(2, 9),
-            time: logData.time || new Date().toISOString()
-        };
-        logs.push(log);
-        console.log(`📝 Log added: ${log.type} for: ${log.url || 'N/A'}`);
-    }
+    console.log(`📝 Log added: ${log.type} for: ${log.url || 'N/A'}`);
     
-    // จำกัดจำนวน (ตอนนี้ 200 คือ 200 รายการธุรกรรมเต็มๆ)
+    logs.push(log);
+    
+    // จำกัดจำนวนเพื่อไม่ให้ Memory เต็มบน Serverless
     if (logs.length > MAX_LOGS) {
         logs.shift();
     }
