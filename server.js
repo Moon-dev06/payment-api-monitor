@@ -10,7 +10,7 @@ app.use(express.json());
 
 // 🧠 เก็บ logs (In-memory สำหรับทดสอบบน Vercel ชั่วคราว)
 let logs = [];
-const MAX_LOGS = 50;
+const MAX_LOGS = 200;
 
 // ฟังก์ชันเก็บ log
 function addLog(logData) {
