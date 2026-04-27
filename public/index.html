@@ -564,10 +564,10 @@
                 <div class="section-title" style="color: var(--blue-sky)">📦 REQUEST</div>
                 <pre>${JSON.stringify({ headers: data.headers, body: data.body }, null, 2)}</pre>
             </div>
-            <div class="log-section" id="res-section-${data.id}">
+            <div class="log-section">
                 <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
-                <div class="section-title" style="color: var(--accent-res)">📥 RESPONSE [${data.status || '...'}]</div>
-                <pre>${data.response ? JSON.stringify(data.response, null, 2) : 'Waiting for response...'}</pre>
+                <div class="section-title" id="res-title-${data.id}" style="color: var(--accent-res)">📥 RESPONSE [${data.status || '...'}]</div>
+                <pre id="res-pre-${data.id}">${data.response ? JSON.stringify(data.response, null, 2) : 'Waiting for response...'}</pre>
             </div>
         </div>
     `;
@@ -579,12 +579,14 @@
             const card = document.getElementById(`card-${data.id}`);
             if (!card) return;
 
-            const resSection = document.getElementById(`res-section-${data.id}`);
+            const resPre = document.getElementById(`res-pre-${data.id}`);
+            const resTitle = document.getElementById(`res-title-${data.id}`);
             const statusBar = card.querySelector('.status-bar');
 
             const statusCode = parseInt(data.statusCode);
             const isError = statusCode >= 400 || data.Error;
 
+            // อัปเดต Status Bar ด้านบนสุด
             if (statusBar) {
                 if (isError) {
                     statusBar.textContent = 'ERROR';
@@ -595,13 +597,20 @@
                 }
             }
 
-            if (resSection) {
+            // อัปเดต Title (เจาะจงเฉพาะจุด ไม่รีเซ็ตโครงสร้าง)
+            if (resTitle) {
                 const statusColor = isError ? 'var(--accent-error)' : 'var(--accent-res)';
-                resSection.innerHTML = `
-                    <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
-                    <div class="section-title" style="color: ${statusColor}">📥 Response [${statusCode || 200}] ${data.Error || ''} </div>
-                    <pre>${data.response ? JSON.stringify(data.response, null, 2) : 'No data'}</pre>
-                `;
+                resTitle.style.color = statusColor;
+                resTitle.textContent = `📥 Response [${statusCode || 200}] ${data.Error || ''}`;
+            }
+
+            // อัปเดต เนื้อหา JSON (ใช้ textContent เพื่อรักษา scroll position)
+            if (resPre) {
+                const newContent = data.response ? JSON.stringify(data.response, null, 2) : 'No data';
+                // อัปเดตเฉพาะเมื่อข้อมูลเปลี่ยนจริงๆ
+                if (resPre.textContent !== newContent) {
+                    resPre.textContent = newContent;
+                }
             }
         }
 
